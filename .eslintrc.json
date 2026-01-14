@@ -21,8 +21,7 @@
       "jsx": true
     },
     "ecmaVersion": "latest",
-    "sourceType": "module",
-    "project": "./tsconfig.json"
+    "sourceType": "module"
   },
   "ignorePatterns": [
     "./node_modules/*",
@@ -30,16 +29,27 @@
     "*.graphql",
     "public/*",
     "dist/*",
-    "tmp/*"
+    "tmp/*",
+    "**/.eslintrc.js"
   ],
   "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": true
+      },
+      "extends": ["plugin:@typescript-eslint/recommended-requiring-type-checking"]
+    },
     {
       "files": ["*.json", "*.jsonc"],
       "parser": "jsonc-eslint-parser"
     },
     {
-      "files": ["*.js", ".jsx"],
-      "parser": "@babel/eslint-parser"
+      "files": ["*.js", "*.jsx"],
+      "parser": "@babel/eslint-parser",
+      "parserOptions": {
+        "requireConfigFile": false
+      }
     }
   ],
   "settings": {

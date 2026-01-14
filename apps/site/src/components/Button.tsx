@@ -28,8 +28,12 @@ const Button: FC<ButtonProps> = ({ children, onClick }) => {
     <button
       style={buttonStyle}
       onClick={onClick}
-      onMouseEnter={(e) => Object.assign(e.currentTarget.style, hoverStyle)}
-      onMouseLeave={(e) => Object.assign(e.currentTarget.style, buttonStyle)}
+      onMouseEnter={(e) => {
+        Object.assign(e.currentTarget.style, hoverStyle)
+      }}
+      onMouseLeave={(e) => {
+        Object.assign(e.currentTarget.style, buttonStyle)
+      }}
     >
       {children}
     </button>

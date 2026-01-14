@@ -4,7 +4,7 @@
     "outDir": "dist",
     "module": "ESNext",
     "moduleResolution": "node",
-    "types": ["node"],
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
     "rootDir": "src",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "experimentalDecorators": true,
@@ -14,7 +14,7 @@
   },
   "files": [
     "../../node_modules/@nx/react/typings/cssmodule.d.ts",
-    "../../node_modules/@nx/react/typings/image.d.ts",
+    "../../node_modules/@nx/react/typings/image.d.ts"
   ],
   "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
 }

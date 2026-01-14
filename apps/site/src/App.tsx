@@ -1,9 +1,9 @@
-import React from 'react';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import { About } from './pages/About';
-import { Home } from './pages/Home';
-import { Layout } from './components/Layout';
-import { ToDoList } from './pages/ToDoList';
+import React from 'react'
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import { About } from './pages/About'
+import { Home } from './pages/Home'
+import { Layout } from './components/Layout'
+import { ToDoList } from './pages/ToDoList'
 
 const App: React.FC = () => {
   return (
@@ -16,7 +16,7 @@ const App: React.FC = () => {
         </Route>
       </Routes>
     </Router>
-  );
-};
+  )
+}
 
-export default App;
+export default App
