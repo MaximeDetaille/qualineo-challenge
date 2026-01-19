@@ -57,6 +57,11 @@ Je vais résumer au maxium étapes par étapes comment j'ai procédé.
 - J'ai plus refacto coté frontend pour le coup. Beaucoup de séparation de composant, déplacement de la logique dans les sous composant (typiquement chaque ligne task est un composant avec ses propres méthodes).
 - Je n'ai pas eu le temps mais il aurait aussi fallu harmoniser les composants. On a par exemple Ant pour certains boutons et un composant bouton codé directement dans le projet.
 
+6. Ce que je n'ai pas eu le temps de faire.
+- La partie testing
+- La partie infra pour que ce soit prod ready (docker)
+- la partie gestion de l'environnement (.env, .env.local)
+
 ## Conclusion
 
 J'ai réalisé le teste en un peu plus de 2h30 (je compte pas le temps de rédaction du doc). J'ai du retenir mon oeil de frontend pour éviter de changer tout le style / les composants de la page ahah :D
