@@ -16,7 +16,7 @@ export const ToDoList: FC = () => {
   const [search, setSearch] = useState<string>('')
 
   const handleLoad = () => {
-    axios.get('http://localhost:3000/api/tasks').then(({ data }) => {
+    void axios.get<Task[]>('http://localhost:3000/api/tasks').then(({ data }) => {
       setTasks(data)
     })
   }
@@ -33,13 +33,13 @@ export const ToDoList: FC = () => {
   }
 
   const updateTaskIsDone = (id: string, isDone: boolean) => {
-    axios.patch(`http://localhost:3000/api/tasks/${id}`, { isDone }).then(() => {
+    void axios.patch(`http://localhost:3000/api/tasks/${id}`, { isDone }).then(() => {
       handleLoad()
     })
   }
 
   const deleteTask = (id: string) => {
-    axios.delete(`http://localhost:3000/api/tasks/${id}`).then(() => {
+    void axios.delete(`http://localhost:3000/api/tasks/${id}`).then(() => {
       handleLoad()
     })
   }

@@ -34,8 +34,12 @@ const Input: FC<InputProps> = ({ placeholder, type, value, onChange }) => {
       value={value}
       onChange={onChange}
       style={inputStyle}
-      onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
-      onBlur={(e) => Object.assign(e.currentTarget.style, inputStyle)}
+      onFocus={(e) => {
+        Object.assign(e.currentTarget.style, focusStyle)
+      }}
+      onBlur={(e) => {
+        Object.assign(e.currentTarget.style, inputStyle)
+      }}
     />
   )
 }
