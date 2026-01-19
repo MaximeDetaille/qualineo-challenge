@@ -19,4 +19,7 @@ export class TaskEntity extends BaseEntity {
 
   @Column({ type: 'boolean', default: false })
   canDelete?: boolean
+
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date
 }

@@ -1,47 +1,52 @@
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { FC, useEffect, useMemo, useState } from 'react'
 import Button from '../components/Button'
 import Input from '../components/Input'
+import { Task } from '../types/task.type'
+import { PaginedTask } from '../types/pagined-task.type'
+import TaskLine from '../components/TaskLine'
+import BulkEditSection from '../components/BulkEditSection'
 
-type Task = {
-  id: string
-  title: string
-  isDone?: boolean
-}
+const DEFAULT_PAGE_SIZE = 5
 
 export const ToDoList: FC = () => {
   const [newTask, setNewTask] = useState<string>('')
   const [tasks, setTasks] = useState<Task[]>([])
   const [search, setSearch] = useState<string>('')
+  const [currentPage, setCurrentPage] = useState<number>(0)
+  const [totalItems, setTotalItems] = useState<number>(0)
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE)
+  const [bulkTasksIds, setBulkTasksIds] = useState<string[]>([])
+
+  const fetchTasks = () => {
+    void axios
+      .get<PaginedTask>(
+        `http://localhost:3000/api/tasks?search=${search}&skip=${currentPage * pageSize}&take=${pageSize}`,
+      )
+      .then(({ data }) => {
+        setTasks(data.tasks)
+        setTotalItems(data.totalItems)
+      })
+  }
 
   const handleLoad = () => {
-    void axios.get<Task[]>('http://localhost:3000/api/tasks').then(({ data }) => {
-      setTasks(data)
-    })
+    fetchTasks()
   }
 
   const addTask = () => {
     axios
-      .post('http://localhost:3000/api/tasks', { title: newTask, isDone: false })
+      .post('http://localhost:3000/api/tasks', {
+        title: newTask,
+        isDone: false,
+        canEdit: true,
+        canDelete: true,
+      })
       .then(() => {
         handleLoad()
       })
-      .catch((err) => {
+      .catch((err: AxiosError) => {
         console.error(err)
       })
-  }
-
-  const updateTaskIsDone = (id: string, isDone: boolean) => {
-    void axios.patch(`http://localhost:3000/api/tasks/${id}`, { isDone }).then(() => {
-      handleLoad()
-    })
-  }
-
-  const deleteTask = (id: string) => {
-    void axios.delete(`http://localhost:3000/api/tasks/${id}`).then(() => {
-      handleLoad()
-    })
   }
 
   const toDoTasks = useMemo(() => {
@@ -52,14 +57,40 @@ export const ToDoList: FC = () => {
     return [...tasks.filter(({ isDone }) => !!isDone)]
   }, [tasks])
 
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1)
+      setSearch('')
+    }
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage(currentPage + 1)
+    setSearch('')
+  }
+
+  const addToBulkTasks = (id: string) => {
+    if (bulkTasksIds.includes(id)) {
+      return setBulkTasksIds(bulkTasksIds.filter((taskId) => taskId !== id))
+    }
+
+    setBulkTasksIds([...bulkTasksIds, id])
+  }
+
   useEffect(() => {
     handleLoad()
   }, [])
 
+  useEffect(() => {
+    fetchTasks()
+  }, [search, currentPage, pageSize])
+
   return (
     <div>
       <h1>ToDoList</h1>
-      <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '4px' }}>
+      <div
+        style={{ display: 'flex', flexWrap: 'nowrap', gap: '4px', justifyContent: 'space-between' }}
+      >
         <div>
           <Input
             placeholder="Search task"
@@ -67,125 +98,82 @@ export const ToDoList: FC = () => {
             onChange={(e: { target: { value: string } }) => setSearch(e.target.value)}
           />
         </div>
-        <div style={{ width: '200px' }}>
+        <div style={{ display: 'flex', gap: '4px', paddingBottom: '20px' }}>
           <Input
             type="text"
             value={newTask}
             onChange={(e: { target: { value: string } }) => setNewTask(e.target.value)}
           />
+          <Button onClick={addTask}>Add</Button>
         </div>
-        <Button onClick={addTask}>Add task</Button>
       </div>
       <hr />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      {bulkTasksIds.length > 0 && (
+        <BulkEditSection bulkTasksIds={bulkTasksIds} handleLoad={handleLoad} />
+      )}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '20px' }}>
         <h2>To-Do</h2>
-        {toDoTasks
-          .filter(({ title }) =>
-            search.length > 0 ? title.toLowerCase().includes(search.toLowerCase()) : true,
+        {toDoTasks.map((task) => {
+          return (
+            <TaskLine
+              key={task.id}
+              task={task}
+              addToBulkTasks={addToBulkTasks}
+              bulkTasks={bulkTasksIds}
+              handleLoad={handleLoad}
+            />
           )
-          .map((task) => {
-            return (
-              <div
-                key={task.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  borderBottom: task.isDone ? '2px solid green' : '1px solid #ccc',
-                  opacity: task.isDone ? 0.3 : 1,
-                  position: 'relative',
-                  padding: '8px 0',
-                }}
-              >
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <div style={{ margin: 'auto 0' }}>
-                    {task.isDone ? (
-                      <CheckCircleOutlined
-                        style={{ color: 'green', fontSize: '20px' }}
-                        onClick={() => updateTaskIsDone(task.id, !task.isDone)}
-                      />
-                    ) : (
-                      <CheckCircleOutlined
-                        style={{ fontSize: '20px' }}
-                        onClick={() => updateTaskIsDone(task.id, !task.isDone)}
-                      />
-                    )}
-                  </div>
-                  <h2 style={{ margin: 'auto 0' }}>{task.title}</h2>
-                </div>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <Button onClick={() => console.log('update')}>Update</Button>
-                  <Button onClick={() => deleteTask(task.id)}>Delete</Button>
-                </div>
-                {task.isDone && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: 0,
-                      right: 0,
-                      borderTop: '2px solid green',
-                      transform: 'translateY(-50%)',
-                    }}
-                  />
-                )}
-              </div>
-            )
-          })}
+        })}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '20px' }}>
         <h2>Done</h2>
-        {doneTasks
-          .filter(({ title }) =>
-            search.length > 0 ? title.toLowerCase().includes(search.toLowerCase()) : true,
+        {doneTasks.map((task) => {
+          return (
+            <TaskLine
+              key={task.id}
+              task={task}
+              addToBulkTasks={addToBulkTasks}
+              bulkTasks={bulkTasksIds}
+              handleLoad={handleLoad}
+            />
           )
-          .map((task) => {
-            return (
-              <div
-                key={task.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  borderBottom: task.isDone ? '2px solid green' : '1px solid #ccc',
-                  opacity: task.isDone ? 0.3 : 1,
-                  position: 'relative',
-                  padding: '8px 0',
-                }}
-              >
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <div style={{ margin: 'auto 0' }}>
-                    {task.isDone ? (
-                      <CheckCircleOutlined
-                        style={{ color: 'green', fontSize: '20px' }}
-                        onClick={() => updateTaskIsDone(task.id, !task.isDone)}
-                      />
-                    ) : (
-                      <CloseCircleOutlined
-                        style={{ fontSize: '20px' }}
-                        onClick={() => updateTaskIsDone(task.id, !task.isDone)}
-                      />
-                    )}
-                  </div>
-                  <h2 style={{ margin: 'auto 0' }}>{task.title}</h2>
-                </div>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <Button onClick={() => console.log('update')}>Update</Button>
-                  <Button onClick={() => deleteTask(task.id)}>Delete</Button>
-                </div>
-                {task.isDone && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: 0,
-                      right: 0,
-                      borderTop: '2px solid green',
-                      transform: 'translateY(-50%)',
-                    }}
-                  />
-                )}
-              </div>
-            )
-          })}
+        })}
+      </div>
+      <div className="flex flex-col justify-center gap-6">
+        <div className="text-center">
+          Page {currentPage + 1}/{Math.ceil(totalItems / pageSize)}
+        </div>
+        <div className="flex flex-row justify-center items-center gap-1">
+          <p className="m-0">Items per page:</p>
+          <div className="flex flex-row gap-1">
+            <Input
+              type="number"
+              value={pageSize.toString()}
+              onChange={(e: { target: { value: string } }) => {
+                const value = Number(e.target.value)
+
+                if (value > 0) {
+                  setPageSize(value)
+                }
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-row justify-center gap-4">
+          <div>
+            <Button disabled={currentPage === 0} onClick={() => handlePreviousPage()}>
+              Previous page
+            </Button>
+          </div>
+          <div>
+            <Button
+              disabled={currentPage === Math.ceil(totalItems / pageSize) - 1}
+              onClick={() => handleNextPage()}
+            >
+              Next page
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   )

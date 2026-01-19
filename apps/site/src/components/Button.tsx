@@ -4,9 +4,10 @@ import { useTheme } from '../context/ThemeContext'
 interface ButtonProps {
   children: ReactNode
   onClick: () => void
+  disabled?: boolean
 }
 
-const Button: FC<ButtonProps> = ({ children, onClick }) => {
+const Button: FC<ButtonProps> = ({ children, onClick, disabled = false }) => {
   const { isDarkMode } = useTheme()
 
   const buttonStyle = {
@@ -18,6 +19,7 @@ const Button: FC<ButtonProps> = ({ children, onClick }) => {
     backgroundColor: isDarkMode ? '#333' : '#fff',
     border: isDarkMode ? '1px solid #fff' : '1px solid #000',
     transition: 'background-color 0.3s, color 0.3s',
+    opacity: disabled ? 0.5 : 1,
   }
 
   const hoverStyle = {
@@ -26,6 +28,7 @@ const Button: FC<ButtonProps> = ({ children, onClick }) => {
 
   return (
     <button
+      disabled={disabled}
       style={buttonStyle}
       onClick={onClick}
       onMouseEnter={(e) => {

@@ -9,7 +9,7 @@ import { TaskEntity } from './modules/task.entity'
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: process.env.DB_NAME ?? 'db',
+      database: process.env.DB_NAME ?? 'db.db',
       entities: [TaskEntity],
       synchronize: true,
     }),
